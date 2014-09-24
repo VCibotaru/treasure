@@ -7,8 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		71FC67D419D2BB4300739D43 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71FC67D319D2BB4300739D43 /* main.cpp */; };
+		7188A28819D2C09B00201D2C /* EasyBMP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7188A28719D2C09B00201D2C /* EasyBMP.cpp */; };
 		71FC67D619D2BB4300739D43 /* treasure.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 71FC67D519D2BB4300739D43 /* treasure.1 */; };
+		71FC67EE19D2BFAC00739D43 /* io.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71FC67EB19D2BFAC00739D43 /* io.cpp */; };
+		71FC67EF19D2BFAC00739D43 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71FC67EC19D2BFAC00739D43 /* main.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,9 +27,18 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		7188A27819D2C00300201D2C /* EasyBMP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EasyBMP.h; sourceTree = "<group>"; };
+		7188A27919D2C00300201D2C /* EasyBMP_BMP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EasyBMP_BMP.h; sourceTree = "<group>"; };
+		7188A27A19D2C00300201D2C /* EasyBMP_DataStructures.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EasyBMP_DataStructures.h; sourceTree = "<group>"; };
+		7188A27B19D2C00300201D2C /* EasyBMP_VariousBMPutilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EasyBMP_VariousBMPutilities.h; sourceTree = "<group>"; };
+		7188A28719D2C09B00201D2C /* EasyBMP.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EasyBMP.cpp; path = src/EasyBMP.cpp; sourceTree = "<group>"; };
 		71FC67D019D2BB4300739D43 /* treasure */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = treasure; sourceTree = BUILT_PRODUCTS_DIR; };
-		71FC67D319D2BB4300739D43 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		71FC67D519D2BB4300739D43 /* treasure.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = treasure.1; sourceTree = "<group>"; };
+		71FC67E719D2BFA300739D43 /* io.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = io.h; sourceTree = "<group>"; };
+		71FC67E819D2BFA300739D43 /* matrix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = matrix.h; sourceTree = "<group>"; };
+		71FC67E919D2BFA300739D43 /* matrix.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = matrix.hpp; sourceTree = "<group>"; };
+		71FC67EB19D2BFAC00739D43 /* io.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = io.cpp; sourceTree = "<group>"; };
+		71FC67EC19D2BFAC00739D43 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -41,9 +52,40 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		7188A27319D2C00200201D2C /* externals */ = {
+			isa = PBXGroup;
+			children = (
+				7188A27419D2C00300201D2C /* EasyBMP */,
+			);
+			path = externals;
+			sourceTree = "<group>";
+		};
+		7188A27419D2C00300201D2C /* EasyBMP */ = {
+			isa = PBXGroup;
+			children = (
+				7188A28719D2C09B00201D2C /* EasyBMP.cpp */,
+				7188A27719D2C00300201D2C /* include */,
+			);
+			path = EasyBMP;
+			sourceTree = "<group>";
+		};
+		7188A27719D2C00300201D2C /* include */ = {
+			isa = PBXGroup;
+			children = (
+				7188A27819D2C00300201D2C /* EasyBMP.h */,
+				7188A27919D2C00300201D2C /* EasyBMP_BMP.h */,
+				7188A27A19D2C00300201D2C /* EasyBMP_DataStructures.h */,
+				7188A27B19D2C00300201D2C /* EasyBMP_VariousBMPutilities.h */,
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
 		71FC67C719D2BB4300739D43 = {
 			isa = PBXGroup;
 			children = (
+				7188A27319D2C00200201D2C /* externals */,
+				71FC67EA19D2BFAC00739D43 /* src */,
+				71FC67E619D2BFA300739D43 /* include */,
 				71FC67D219D2BB4300739D43 /* treasure */,
 				71FC67D119D2BB4300739D43 /* Products */,
 			);
@@ -60,10 +102,28 @@
 		71FC67D219D2BB4300739D43 /* treasure */ = {
 			isa = PBXGroup;
 			children = (
-				71FC67D319D2BB4300739D43 /* main.cpp */,
 				71FC67D519D2BB4300739D43 /* treasure.1 */,
 			);
 			path = treasure;
+			sourceTree = "<group>";
+		};
+		71FC67E619D2BFA300739D43 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				71FC67E719D2BFA300739D43 /* io.h */,
+				71FC67E819D2BFA300739D43 /* matrix.h */,
+				71FC67E919D2BFA300739D43 /* matrix.hpp */,
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
+		71FC67EA19D2BFAC00739D43 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				71FC67EB19D2BFAC00739D43 /* io.cpp */,
+				71FC67EC19D2BFAC00739D43 /* main.cpp */,
+			);
+			path = src;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -117,7 +177,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				71FC67D419D2BB4300739D43 /* main.cpp in Sources */,
+				71FC67EE19D2BFAC00739D43 /* io.cpp in Sources */,
+				7188A28819D2C09B00201D2C /* EasyBMP.cpp in Sources */,
+				71FC67EF19D2BFAC00739D43 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -197,6 +259,10 @@
 		71FC67DA19D2BB4300739D43 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/externals/EasyBMP/lib",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -204,6 +270,10 @@
 		71FC67DB19D2BB4300739D43 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/externals/EasyBMP/lib",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -227,6 +297,7 @@
 				71FC67DB19D2BB4300739D43 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
