@@ -8,8 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		7188A28819D2C09B00201D2C /* EasyBMP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7188A28719D2C09B00201D2C /* EasyBMP.cpp */; };
-		7188A28A19D2C50600201D2C /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7188A28919D2C50600201D2C /* main.cpp */; };
 		7188A28D19D2C58F00201D2C /* ImageProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7188A28B19D2C58F00201D2C /* ImageProcessor.cpp */; };
+		7188A29019D2D13100201D2C /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7188A28F19D2D13100201D2C /* main.cpp */; };
 		71FC67D619D2BB4300739D43 /* treasure.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 71FC67D519D2BB4300739D43 /* treasure.1 */; };
 		71FC67EE19D2BFAC00739D43 /* io.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71FC67EB19D2BFAC00739D43 /* io.cpp */; };
 /* End PBXBuildFile section */
@@ -33,9 +33,9 @@
 		7188A27A19D2C00300201D2C /* EasyBMP_DataStructures.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EasyBMP_DataStructures.h; sourceTree = "<group>"; };
 		7188A27B19D2C00300201D2C /* EasyBMP_VariousBMPutilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EasyBMP_VariousBMPutilities.h; sourceTree = "<group>"; };
 		7188A28719D2C09B00201D2C /* EasyBMP.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EasyBMP.cpp; path = src/EasyBMP.cpp; sourceTree = "<group>"; };
-		7188A28919D2C50600201D2C /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		7188A28B19D2C58F00201D2C /* ImageProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ImageProcessor.cpp; sourceTree = "<group>"; };
 		7188A28E19D2CB2D00201D2C /* ImageProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageProcessor.h; sourceTree = "<group>"; };
+		7188A28F19D2D13100201D2C /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = treasure/main.cpp; sourceTree = "<group>"; };
 		71FC67D019D2BB4300739D43 /* treasure */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = treasure; sourceTree = BUILT_PRODUCTS_DIR; };
 		71FC67D519D2BB4300739D43 /* treasure.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = treasure.1; sourceTree = "<group>"; };
 		71FC67E719D2BFA300739D43 /* io.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = io.h; sourceTree = "<group>"; };
@@ -86,7 +86,7 @@
 		71FC67C719D2BB4300739D43 = {
 			isa = PBXGroup;
 			children = (
-				7188A28919D2C50600201D2C /* main.cpp */,
+				7188A28F19D2D13100201D2C /* main.cpp */,
 				7188A27319D2C00200201D2C /* externals */,
 				71FC67EA19D2BFAC00739D43 /* src */,
 				71FC67E619D2BFA300739D43 /* include */,
@@ -184,8 +184,8 @@
 			files = (
 				71FC67EE19D2BFAC00739D43 /* io.cpp in Sources */,
 				7188A28D19D2C58F00201D2C /* ImageProcessor.cpp in Sources */,
+				7188A29019D2D13100201D2C /* main.cpp in Sources */,
 				7188A28819D2C09B00201D2C /* EasyBMP.cpp in Sources */,
-				7188A28A19D2C50600201D2C /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
