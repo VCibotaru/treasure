@@ -11,7 +11,7 @@
 typedef unsigned int uint;
 
 template<typename ValueT>
-class Matrix
+class Matrix : public std::enable_shared_from_this<Matrix<ValueT>>
 {
 public:
     // Number of rows

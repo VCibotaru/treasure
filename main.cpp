@@ -19,6 +19,7 @@ using std::make_tuple;
 
 #include "io.h"
 #include "matrix.h"
+#include "ImageProcessor.h"
 
 typedef tuple<uint, uint, uint, uint> Rect;
 
@@ -44,8 +45,10 @@ int main(int argc, char **argv)
     }
 
     try {
-        Image src_image = load_image(argv[1]);
-        save_image(Image, argv[2]);
+        std::shared_ptr<Image> src_image = std::make_shared<Image>(load_image(argv[1]));
+        ImageProcessor imProc = ImageProcessor(src_image);
+        imProc.whitenPixels();
+        save_image(*src_image, argv[2]);
         /*ofstream fout(argv[3]);
 
         vector<Rect> path;
@@ -59,9 +62,10 @@ int main(int argc, char **argv)
             tie(x, y, width, height) = obj;
             fout << x << " " << y << " " << width << " " << height << endl;
         }
-
-    } catch (const string &s) {
+        */
+    }
+        catch (const string &s) {
         cerr << "Error: " << s << endl;
         return 1;
-    }*/
+    }
 }
