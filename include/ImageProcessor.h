@@ -11,6 +11,7 @@
 
 #include <memory>
 #include <iostream>
+#include <vector>
 #include "io.h"
 
 typedef unsigned int uint;
@@ -18,17 +19,18 @@ typedef unsigned int uint;
 
 class ImageProcessor {
     std::shared_ptr<Image> theImage;
-    
+    std::shared_ptr<Matrix<uint>> grayscaleImage;
+    std::vector<uint> histogram;
 public:
     
     //init the processor with a given image
     ImageProcessor(const std::shared_ptr<Image> &_Image);
     
-    //just for testing the io system
-    void whitenPixels() const;
+    uint getPixelIntensity(uint i, uint j) const;
+    std::shared_ptr<Image> getHistogram() const;
+    std::shared_ptr<Image> getGrayscale() const;
     
-    //for debugging
-    void printPixels() const;
+//TODO: delete funcs below
     
 };
 
