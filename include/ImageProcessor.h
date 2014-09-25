@@ -20,6 +20,7 @@ typedef unsigned int uint;
 class ImageProcessor {
     std::shared_ptr<Image> theImage;
     std::shared_ptr<Matrix<uint>> grayscaleImage;
+    std::shared_ptr<Matrix<uint>> binImage;
     std::vector<uint> histogram;
 public:
     
@@ -29,6 +30,9 @@ public:
     uint getPixelIntensity(uint i, uint j) const;
     std::shared_ptr<Image> getHistogram() const;
     std::shared_ptr<Image> getGrayscale() const;
+    std::shared_ptr<Image> getBin() const;
+    
+    void binarize();
     
 //TODO: delete funcs below
     

@@ -270,6 +270,7 @@
 					"$(PROJECT_DIR)/externals/EasyBMP/lib",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SYMROOT = /Users/viktorchibotaru/Desktop;
 			};
 			name = Debug;
 		};
@@ -281,6 +282,7 @@
 					"$(PROJECT_DIR)/externals/EasyBMP/lib",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SYMROOT = /Users/viktorchibotaru/Desktop;
 			};
 			name = Release;
 		};
