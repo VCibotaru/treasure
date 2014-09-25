@@ -14,6 +14,8 @@
 #define B 0.114
 #define HIST_W 256
 #define HIST_H 1000
+#define THRESH_RATIO 0.2
+#define THRESH 10
 
 //convert YUV(grayscale) to RGB
 std::shared_ptr<Image> getRGBFromYUV(const std::shared_ptr<Matrix<uint>> & grayscale){
@@ -31,7 +33,6 @@ std::shared_ptr<Image> getRGBFromYUV(const std::shared_ptr<Matrix<uint>> & grays
 
 ImageProcessor::ImageProcessor(const std::shared_ptr<Image> &_Image) : histogram(HIST_W) {
     theImage = _Image;
-    
     grayscaleImage = std::make_shared<Matrix<uint>>(theImage->n_rows, theImage->n_cols);
 
     for (uint i = 0 ; i < theImage->n_rows ; ++i) {
@@ -72,37 +73,10 @@ std::shared_ptr<Image> ImageProcessor::getHistogram() const {
 //let`s try the the gradient variant
 void ImageProcessor::binarize() {
     std::shared_ptr<Matrix<uint>> gr = grayscaleImage;
-    uint sum = 0, expVal = 0, curSum = 0, curExpVal = 0, threshold = 0;
-    double sigma, maxSigma = -1, w, m;
-    for (uint i = 0 ; i < histogram.size() ; ++i) {
-        expVal += i * histogram[i];
-        sum += histogram[i];
-    }
-    
-    for (uint i = 0 ; i < histogram.size() ; ++i) {
-        curExpVal += i * histogram[i];
-        curSum += histogram[i];
-        w = double(curSum) / sum;
-        m = double(curExpVal) / curSum - double(expVal - curExpVal) / (sum - curSum);
-        sigma = w * (1 - w) * m * m;
-        if (sigma > maxSigma) {
-            maxSigma = sigma;
-            threshold = i;
-        }
-    }
-    
     binImage = std::make_shared<Matrix<uint>>(gr->n_rows, gr->n_cols);
-    /*uint val1 = 0, val2 = 0;
-    for (uint i = 1 ; i < grayscaleImage->n_rows - 1 ; ++i) {
-        for (uint j = 1 ; j < grayscaleImage->n_cols - 1 ; ++j) {
-            uint m = std::max(abs((*gr)(i + 1, j) - (*gr)(i - 1, j)), abs((*gr)(i, j + 1) - (*gr)(i, j - 1)));
-            val1 += m * (*gr)(i, j);
-            val2 += m;
-        }
-    }
-     uint t = val1/val2;
-     std::cout << t << std::endl;
-    */
+    
+    uint threshold = THRESH;//computeThreshold();
+    
     for (uint i = 0 ; i < grayscaleImage->n_rows ; ++i) {
         for (uint j = 0 ; j < grayscaleImage->n_cols ; ++j) {
             if ((*gr)(i, j) > threshold) {
@@ -111,6 +85,30 @@ void ImageProcessor::binarize() {
         }
     }
     
+}
+
+uint ImageProcessor::computeThreshold() const {
+    uint maxVal = histogram[0], maxIndex = 0, curSum = 0, sum = theImage->n_cols * theImage->n_rows, maxSum = sum;
+    for (uint i = 1 ; i < 256 ; ++i) {
+        if (histogram[i] > maxVal) {
+            maxVal = histogram[i];
+            maxIndex = i;
+        }
+    }
+    std::cout << "max = " << maxIndex << std::endl;
+    for (uint i = 0 ; i <= maxIndex; ++i) {
+        maxSum -= histogram[i];
+    }
+    curSum = maxSum;
+    uint threshold;
+    for (threshold = maxIndex + 1 ; threshold < 256 ; ++threshold) {
+        curSum -= histogram[threshold];
+        if (curSum <= THRESH_RATIO * maxSum) {
+            break;
+        }
+    }
+    std::cout << threshold << std::endl;
+    return threshold;
 }
 
 uint ImageProcessor::getPixelIntensity(uint i, uint j) const {

@@ -36,6 +36,7 @@
 		7188A28B19D2C58F00201D2C /* ImageProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ImageProcessor.cpp; sourceTree = "<group>"; };
 		7188A28E19D2CB2D00201D2C /* ImageProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageProcessor.h; sourceTree = "<group>"; };
 		7188A28F19D2D13100201D2C /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = treasure/main.cpp; sourceTree = "<group>"; };
+		71F68DBC19D4360B0011D9FD /* trash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = trash; sourceTree = "<group>"; };
 		71FC67D019D2BB4300739D43 /* treasure */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = treasure; sourceTree = BUILT_PRODUCTS_DIR; };
 		71FC67D519D2BB4300739D43 /* treasure.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = treasure.1; sourceTree = "<group>"; };
 		71FC67E719D2BFA300739D43 /* io.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = io.h; sourceTree = "<group>"; };
@@ -127,6 +128,7 @@
 			children = (
 				71FC67EB19D2BFAC00739D43 /* io.cpp */,
 				7188A28B19D2C58F00201D2C /* ImageProcessor.cpp */,
+				71F68DBC19D4360B0011D9FD /* trash */,
 			);
 			path = src;
 			sourceTree = "<group>";

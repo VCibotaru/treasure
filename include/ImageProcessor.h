@@ -28,6 +28,7 @@ public:
     ImageProcessor(const std::shared_ptr<Image> &_Image);
     
     uint getPixelIntensity(uint i, uint j) const;
+    uint computeThreshold() const;
     std::shared_ptr<Image> getHistogram() const;
     std::shared_ptr<Image> getGrayscale() const;
     std::shared_ptr<Image> getBin() const;

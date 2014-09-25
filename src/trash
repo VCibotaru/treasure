@@ -1,0 +1,38 @@
+    Otzu variant:
+    
+
+    uint sum = 0, expVal = 0, curSum = 0, curExpVal = 0, threshold = 0;
+    double sigma, maxSigma = -1, w, m;
+    for (uint i = 0 ; i < histogram.size() ; ++i) {
+        expVal += i * histogram[i];
+        sum += histogram[i];
+    }
+    
+    for (uint i = 0 ; i < histogram.size() ; ++i) {
+        curExpVal += i * histogram[i];
+        curSum += histogram[i];
+        w = double(curSum) / sum;
+        m = double(curExpVal) / curSum - double(expVal - curExpVal) / (sum - curSum);
+        sigma = w * (1 - w) * m * m;
+        if (sigma > maxSigma) {
+            maxSigma = sigma;
+            threshold = i;
+        }
+    }
+    
+    binImage = std::make_shared<Matrix<uint>>(gr->n_rows, gr->n_cols);
+    
+    -------------------------------
+    gradient variant:
+    
+
+    uint val1 = 0, val2 = 0;
+    for (uint i = 1 ; i < grayscaleImage->n_rows - 1 ; ++i) {
+        for (uint j = 1 ; j < grayscaleImage->n_cols - 1 ; ++j) {
+            uint m = std::max(abs((*gr)(i + 1, j) - (*gr)(i - 1, j)), abs((*gr)(i, j + 1) - (*gr)(i, j - 1)));
+            val1 += m * (*gr)(i, j);
+            val2 += m;
+        }
+    }
+     uint t = val1/val2;
+     std::cout << t << std::endl;
