@@ -15,7 +15,8 @@
 #define HIST_W 256
 #define HIST_H 1000
 #define THRESH_RATIO 0.2
-#define THRESH 10
+#define THRESH 30
+
 
 //convert YUV(grayscale) to RGB
 std::shared_ptr<Image> getRGBFromYUV(const std::shared_ptr<Matrix<uint>> & grayscale){
@@ -34,6 +35,7 @@ std::shared_ptr<Image> getRGBFromYUV(const std::shared_ptr<Matrix<uint>> & grays
 ImageProcessor::ImageProcessor(const std::shared_ptr<Image> &_Image) : histogram(HIST_W) {
     theImage = _Image;
     grayscaleImage = std::make_shared<Matrix<uint>>(theImage->n_rows, theImage->n_cols);
+    labelImage = std::make_shared<Matrix<uint>>(theImage->n_rows, theImage->n_cols);
 
     for (uint i = 0 ; i < theImage->n_rows ; ++i) {
         for (uint j = 0 ; j < theImage->n_cols ; ++j) {
@@ -53,6 +55,9 @@ std::shared_ptr<Image> ImageProcessor::getGrayscale() const {
 std::shared_ptr<Image> ImageProcessor::getBin() const {
     return getRGBFromYUV(binImage);
 }
+std::shared_ptr<Matrix<uint>> ImageProcessor::getLabeled() const {
+    return labelImage;
+}
 
 std::shared_ptr<Image> ImageProcessor::getHistogram() const {
     std::shared_ptr<Image> hist_image = std::make_shared<Image>(HIST_H, HIST_W);
@@ -70,6 +75,7 @@ std::shared_ptr<Image> ImageProcessor::getHistogram() const {
     //return getRGBFromYUV(histogram);
 }
 
+
 //let`s try the the gradient variant
 void ImageProcessor::binarize() {
     std::shared_ptr<Matrix<uint>> gr = grayscaleImage;
@@ -82,6 +88,49 @@ void ImageProcessor::binarize() {
             if ((*gr)(i, j) > threshold) {
                 (*binImage)(i, j) = 0xFF;
             }
+        }
+    }
+    
+}
+
+void ImageProcessor::segment() {
+    std::vector<uint> labels(1);
+    
+    for (uint i = 0 ; i < grayscaleImage->n_rows ; ++i) {
+        for (uint j = 0 ; j < grayscaleImage->n_cols ; ++j) {
+            if ( (*grayscaleImage)(i,j) ) {
+                uint up = (i > 0) ? (*labelImage)(i - 1, j) : 0;
+                uint left = (j > 0) ? (*labelImage)(i, j - 1) : 0;
+                if (!up && !left) {
+                    //both are not labeled
+                    labels.push_back(labels.size());
+                    (*labelImage)(i,j) = labels.back();
+                    continue;
+                }
+                if (up ^ left) {
+                    //one is labeled, other is not
+                    uint theLabel = (left) ? left : up;
+                    (*labelImage)(i,j) = theLabel;
+                    continue;
+                }
+                //both are labeled
+                (*labelImage)(i,j) = std::min(up, left);
+                labels[up] = std::min(up, left);
+                labels[left] = std::min(up, left);
+            }
+        }
+    }
+    
+    for (uint i = 0 ; i < grayscaleImage->n_rows ; ++i) {
+        for (uint j = 0 ; j < grayscaleImage->n_cols ; ++j) {
+            (*labelImage)(i,j) = labels[(*labelImage)(i,j)];
+            if ((*labelImage)(i,j)) {
+                (*theImage)(i,j) = std::make_tuple(0xFF, 0xFF, 0);
+            }
+            else {
+                (*theImage)(i,j) = std::make_tuple(0, 0, 0);
+            }
+            
         }
     }
     
