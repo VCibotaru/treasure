@@ -16,6 +16,14 @@
 
 typedef unsigned int uint;
 
+struct Point {
+    uint x, y;
+    Point(uint _x = 0, uint _y = 0) : x(_x), y(_y) {};
+};
+
+struct ImageObject {
+    Point topLeft, bottomRight;
+};
 
 class ImageProcessor {
     std::shared_ptr<Image> theImage;
@@ -23,6 +31,8 @@ class ImageProcessor {
     std::shared_ptr<Matrix<uint>> binImage;
     std::shared_ptr<Matrix<uint>> labelImage;
     std::vector<uint> histogram;
+    std::vector<ImageObject> objects;
+    uint components;
 public:
     
     //init the processor with a given image
@@ -30,6 +40,9 @@ public:
     
     void binarize();
     void segment();
+    void parseObjects();
+    void drawRectangle(uint num);
+    void showObjects();
     
     uint getPixelIntensity(uint i, uint j) const;
     uint computeThreshold() const;

@@ -96,7 +96,6 @@ void ImageProcessor::binarize() {
 //83x44
 void ImageProcessor::segment() {
     std::vector<uint> labels(1);
-    
     for (uint i = 0 ; i < grayscaleImage->n_rows ; ++i) {
         for (uint j = 0 ; j < grayscaleImage->n_cols ; ++j) {
             if ( (*binImage)(i,j)) {
@@ -114,9 +113,6 @@ void ImageProcessor::segment() {
                     continue;
                 }
                 //both are labeled
-                if (j > 250 && i < 100) {
-                    
-                }
                 uint val = std::min(labels[up], labels[left]);
                 (*labelImage)(i,j) = val;
                 labels[up] = val;
@@ -124,21 +120,66 @@ void ImageProcessor::segment() {
             }
         }
     }
-    
-    for (uint i = 0 ; i < grayscaleImage->n_rows ; ++i) {
-        for (uint j = 0 ; j < grayscaleImage->n_cols ; ++j) {
+    components = 0;
+    for (uint i = 0 ; i < labelImage->n_rows ; ++i) {
+        for (uint j = 0 ; j < labelImage->n_cols ; ++j) {
             (*labelImage)(i,j) = labels[(*labelImage)(i,j)];
-            if ((*labelImage)(i,j)) {
-                uint value = ((*labelImage)(i,j) * 20 % 256);
-                (*theImage)(i,j) = std::make_tuple(0xFF, 0xFF, 0);
-            }
-            else {
-                (*theImage)(i,j) = std::make_tuple(0, 0, 0);
+            if ((*labelImage)(i,j) > components) {
+                components = (*labelImage)(i,j);
             }
         }
     }
+}
+
+void ImageProcessor::parseObjects() {
+    objects.resize(components);
     
+    for (uint i = 0 ; i < components ; ++i) {
+        objects[i].topLeft.x = objects[i].topLeft.y = std::max(theImage->n_cols, theImage->n_rows) + 1;
+    }
+    for (uint i = 0 ; i < labelImage->n_rows ; ++i) {
+        for (uint j = 0 ; j < labelImage->n_cols ; ++j) {
+            if ((*labelImage)(i, j)) {
+                uint component = (*labelImage)(i,j) - 1;
+                if (i < objects[component].topLeft.x) {
+                    objects[component].topLeft.x = i;
+                }
+                if (j < objects[component].topLeft.y) {
+                    objects[component].topLeft.y = j;
+                }
+                if (i > objects[component].bottomRight.x) {
+                    objects[component].bottomRight.x = i;
+                }
+                if (j > objects[component].bottomRight.y) {
+                    objects[component].bottomRight.y = j;
+                }
+            }
+        }
+    }
+}
+
+void ImageProcessor::showObjects() {
     
+    for (uint i = 0 ; i < components ; ++i) {
+        drawRectangle(i);
+    }
+}
+
+void ImageProcessor::drawRectangle(uint num) {
+    uint x1 = objects[num].topLeft.x;
+    uint x2 = objects[num].bottomRight.x;
+    uint y1 = objects[num].topLeft.y;
+    uint y2 = objects[num].bottomRight.y;
+    
+    for (uint x = x1 ; x <= x2 ; ++x) {
+            (*theImage)(x, y1) = std::make_tuple(0xFF, 0, 0);
+            (*theImage)(x, y2) = std::make_tuple(0xFF, 0, 0);
+    }
+    
+    for (uint y = y1 ; y <= y2 ; ++y) {
+        (*theImage)(x1, y) = std::make_tuple(0xFF, 0, 0);
+        (*theImage)(x2, y) = std::make_tuple(0xFF, 0, 0);
+    }
 }
 
 uint ImageProcessor::computeThreshold() const {
@@ -169,11 +210,5 @@ uint ImageProcessor::getPixelIntensity(uint i, uint j) const {
     uint r = std::get<0>((*theImage)(i,j));
     uint g = std::get<1>((*theImage)(i,j));
     uint b = std::get<2>((*theImage)(i,j));
-    
-    /*if (r + g + b > 100) {
-        std::cout << r << " " << g << " " << b << std::endl;
-        std::cout << uint(r*R + g*G + b*B) << std::endl;
-    }*/
-    
     return uint(r*R + g*G + b*B);
 }
