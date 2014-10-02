@@ -18,6 +18,48 @@
 #define THRESH 30
 
 
+
+double ImageObject::getMoment(std::shared_ptr<Matrix<uint>> image, uint i, uint j) {
+    double moment = 0;
+    for (uint x = topLeft.x ; x <= bottomRight.x ; ++x) {
+        for (uint y = topLeft.y ; y <= bottomRight.y ; ++y) {
+            if ((*image)(x, y) == num) {
+                moment += std::pow(x - medX, i) * std::pow(y - medY, j);
+            }
+        }
+    }
+    return moment;
+}
+
+double ImageObject::getElongation(std::shared_ptr<Matrix<uint>> image) {
+    if (!medsAssigned) {
+        uint count = 0;
+        medX = 0;
+        medY = 0;
+        medsAssigned = true;
+        for (uint x = topLeft.x ; x <= bottomRight.x ; ++x) {
+            for (uint y = topLeft.y ; y <= bottomRight.y ; ++y) {
+                if ((*image)(x, y) == num) {
+                    //if pixel belongs to object
+                    count++;
+                    medX += x;
+                    medY += y;
+                }
+            }
+        }
+        if (!count) return 0;
+        medX /= count;
+        medY /= count;
+    }
+    
+    double m20 = getMoment(image, 2, 0);
+    double m02 = getMoment(image, 0, 2);
+    double m11 = getMoment(image, 1, 1);
+    double tmp = std::sqrt((m20 - m02) * (m20 - m02) + 4 * m11 * m11);
+    return (m20 + m02 + tmp) / (m20 + m02 - tmp);
+}
+
+
 //convert YUV(grayscale) to RGB
 std::shared_ptr<Image> getRGBFromYUV(const std::shared_ptr<Matrix<uint>> & grayscale){
     std::shared_ptr<Image> color = std::make_shared<Image>(grayscale->n_rows, grayscale->n_cols);
@@ -136,6 +178,8 @@ void ImageProcessor::parseObjects() {
     
     for (uint i = 0 ; i < components ; ++i) {
         objects[i].topLeft.x = objects[i].topLeft.y = std::max(theImage->n_cols, theImage->n_rows) + 1;
+        objects[i].medsAssigned = false;
+        objects[i].num = i + 1;
     }
     for (uint i = 0 ; i < labelImage->n_rows ; ++i) {
         for (uint j = 0 ; j < labelImage->n_cols ; ++j) {
@@ -159,9 +203,13 @@ void ImageProcessor::parseObjects() {
 }
 
 void ImageProcessor::showObjects() {
-    
     for (uint i = 0 ; i < components ; ++i) {
-        drawRectangle(i);
+        double val = objects[i].getElongation(labelImage);
+        if (val) {
+            std::cout << val << std::endl;
+            if (val < 3) drawRectangle(i);
+        }
+        
     }
 }
 

@@ -23,6 +23,11 @@ struct Point {
 
 struct ImageObject {
     Point topLeft, bottomRight;
+    bool medsAssigned;
+    uint num;
+    double medX, medY;
+    double getMoment(std::shared_ptr<Matrix<uint>> image, uint i, uint j);
+    double getElongation(std::shared_ptr<Matrix<uint>> image);
 };
 
 class ImageProcessor {
