@@ -93,12 +93,13 @@ void ImageProcessor::binarize() {
     
 }
 
+//83x44
 void ImageProcessor::segment() {
     std::vector<uint> labels(1);
     
     for (uint i = 0 ; i < grayscaleImage->n_rows ; ++i) {
         for (uint j = 0 ; j < grayscaleImage->n_cols ; ++j) {
-            if ( (*grayscaleImage)(i,j) ) {
+            if ( (*binImage)(i,j)) {
                 uint up = (i > 0) ? (*labelImage)(i - 1, j) : 0;
                 uint left = (j > 0) ? (*labelImage)(i, j - 1) : 0;
                 if (!up && !left) {
@@ -107,16 +108,19 @@ void ImageProcessor::segment() {
                     (*labelImage)(i,j) = labels.back();
                     continue;
                 }
-                if (up ^ left) {
+                if ((up && !left) || (!up && left)) {
                     //one is labeled, other is not
-                    uint theLabel = (left) ? left : up;
-                    (*labelImage)(i,j) = theLabel;
+                    (*labelImage)(i,j) = (up) ? up : left;
                     continue;
                 }
                 //both are labeled
-                (*labelImage)(i,j) = std::min(up, left);
-                labels[up] = std::min(up, left);
-                labels[left] = std::min(up, left);
+                if (j > 250 && i < 100) {
+                    
+                }
+                uint val = std::min(labels[up], labels[left]);
+                (*labelImage)(i,j) = val;
+                labels[up] = val;
+                labels[left] = val;
             }
         }
     }
@@ -125,14 +129,15 @@ void ImageProcessor::segment() {
         for (uint j = 0 ; j < grayscaleImage->n_cols ; ++j) {
             (*labelImage)(i,j) = labels[(*labelImage)(i,j)];
             if ((*labelImage)(i,j)) {
+                uint value = ((*labelImage)(i,j) * 20 % 256);
                 (*theImage)(i,j) = std::make_tuple(0xFF, 0xFF, 0);
             }
             else {
                 (*theImage)(i,j) = std::make_tuple(0, 0, 0);
             }
-            
         }
     }
+    
     
 }
 
