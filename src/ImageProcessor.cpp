@@ -19,6 +19,7 @@
 
 
 
+#pragma line ImageObject methods
 double ImageObject::getMoment(std::shared_ptr<Matrix<uint>> image, uint i, uint j) {
     double moment = 0;
     for (uint x = topLeft.x ; x <= bottomRight.x ; ++x) {
@@ -59,7 +60,27 @@ double ImageObject::getElongation(std::shared_ptr<Matrix<uint>> image) {
     return (m20 + m02 + tmp) / (m20 + m02 - tmp);
 }
 
+double ImageObject::getAngle(std::shared_ptr<Matrix<uint> > image) {
+    double m11 = getMoment(image, 1, 1);
+    double m02 = getMoment(image, 0, 2);
+    double m20 = getMoment(image, 2, 0);
+    return std::atan(2 * m11 / (m20 - m02)) / 2;
+}
 
+uint ImageObject::getRedPixelsCount(std::shared_ptr<Image> image) {
+    uint count = 0;
+    for (uint x = topLeft.x ; x <= bottomRight.x ; ++x) {
+        for (uint y = topLeft.y ; y <= bottomRight.y ; ++y) {
+            uint r = std::get<0>((*image)(x, y));
+            uint g = std::get<1>((*image)(x, y));
+            uint b = std::get<2>((*image)(x, y));
+            if (r > g + b) {
+                count++;
+            }
+        }
+    }
+    return count;
+}
 //convert YUV(grayscale) to RGB
 std::shared_ptr<Image> getRGBFromYUV(const std::shared_ptr<Matrix<uint>> & grayscale){
     std::shared_ptr<Image> color = std::make_shared<Image>(grayscale->n_rows, grayscale->n_cols);
@@ -86,35 +107,29 @@ ImageProcessor::ImageProcessor(const std::shared_ptr<Image> &_Image) : histogram
             histogram[val]++;
         }
     }
-    
-    
-    
 }
 
-std::shared_ptr<Image> ImageProcessor::getGrayscale() const {
-    return getRGBFromYUV(grayscaleImage);
-}
-std::shared_ptr<Image> ImageProcessor::getBin() const {
-    return getRGBFromYUV(binImage);
-}
-std::shared_ptr<Matrix<uint>> ImageProcessor::getLabeled() const {
-    return labelImage;
+std::vector<ImageObject> ImageProcessor::getObjects() const {
+    return objects;
 }
 
-std::shared_ptr<Image> ImageProcessor::getHistogram() const {
-    std::shared_ptr<Image> hist_image = std::make_shared<Image>(HIST_H, HIST_W);
-    uint total = theImage->n_cols * theImage->n_rows;
-    for (uint i = 0 ; i < HIST_W ; ++i) {
-        uint val = histogram[i] * HIST_H / total;
-        if (val) {
-            std::cout << i << " " << histogram[i] << " " << val << std::endl;
-        }
-        for (uint j = 0 ; j <= val ; ++j) {
-            (*hist_image)(HIST_H - j - 1, i) = std::make_tuple(0xFF, 0xFF, 0xFF);
+uint ImageProcessor::getRedArrowIndex() {
+    uint max = 0, red;
+    for (uint i = 0 ; i < objects.size() ; ++i) {
+        if (objects[i].ImageObject::getRedPixelsCount(theImage) > max) {
+            max =
         }
     }
-    return hist_image;
-    //return getRGBFromYUV(histogram);
+    
+}
+ImageObject ImageProcessor::getTreasure() {
+    for (uint i = 0 ; i < objects.size() ; ++i) {
+        double val = objects[i].getElongation(labelImage);
+        if (val < 3) {
+            return objects[i];
+        }
+    }
+    return objects[0];
 }
 
 
@@ -141,9 +156,6 @@ void ImageProcessor::segment() {
     for (uint i = 0 ; i < grayscaleImage->n_rows ; ++i) {
         for (uint j = 0 ; j < grayscaleImage->n_cols ; ++j) {
             if ( (*binImage)(i,j)) {
-                if (i == 50 && j > 288) {
-                    
-                }
                 uint up = (i > 0) ? (*labelImage)(i - 1, j) : 0;
                 uint left = (j > 0) ? (*labelImage)(i, j - 1) : 0;
                 if (!up && !left) {
@@ -207,40 +219,11 @@ void ImageProcessor::parseObjects() {
         }
     }
     for (uint i = 0 ; i < components ; ++i) {
-        if (tmp[i].getArea() > 10) {
+        if (tmp[i].getArea() > 600) {
             objects.push_back(tmp[i]);
         }
     }
     components = uint(objects.size());
-}
-
-void ImageProcessor::showObjects() {
-    for (uint i = 0 ; i < components ; ++i) {
-        double val = objects[i].getElongation(labelImage);
-        if (val) {
-            //std::cout << val << std::endl;
-            //if (val < 3) drawRectangle(i);
-        }
-        drawRectangle(i);
-        
-    }
-}
-
-void ImageProcessor::drawRectangle(uint num) {
-    uint x1 = objects[num].topLeft.x;
-    uint x2 = objects[num].bottomRight.x;
-    uint y1 = objects[num].topLeft.y;
-    uint y2 = objects[num].bottomRight.y;
-    
-    for (uint x = x1 ; x <= x2 ; ++x) {
-            (*theImage)(x, y1) = std::make_tuple(0xFF, 0, 0);
-            (*theImage)(x, y2) = std::make_tuple(0xFF, 0, 0);
-    }
-    
-    for (uint y = y1 ; y <= y2 ; ++y) {
-        (*theImage)(x1, y) = std::make_tuple(0xFF, 0, 0);
-        (*theImage)(x2, y) = std::make_tuple(0xFF, 0, 0);
-    }
 }
 
 uint ImageProcessor::computeThreshold() const {
@@ -267,8 +250,62 @@ uint ImageProcessor::computeThreshold() const {
 }
 
 uint ImageProcessor::getPixelIntensity(uint i, uint j) const {
-    uint r = std::get<0>((*theImage)(i,j));
     uint g = std::get<1>((*theImage)(i,j));
     uint b = std::get<2>((*theImage)(i,j));
+    uint r = std::get<0>((*theImage)(i,j));
     return uint(r*R + g*G + b*B);
 }
+
+
+#pragma debug
+//debug methods, including output
+
+std::shared_ptr<Image> ImageProcessor::getGrayscale() const {
+    return getRGBFromYUV(grayscaleImage);
+}
+std::shared_ptr<Image> ImageProcessor::getBin() const {
+    return getRGBFromYUV(binImage);
+}
+std::shared_ptr<Matrix<uint>> ImageProcessor::getLabeled() const {
+    return labelImage;
+}
+std::shared_ptr<Image> ImageProcessor::getHistogram() const {
+    std::shared_ptr<Image> hist_image = std::make_shared<Image>(HIST_H, HIST_W);
+    uint total = theImage->n_cols * theImage->n_rows;
+    for (uint i = 0 ; i < HIST_W ; ++i) {
+        uint val = histogram[i] * HIST_H / total;
+        if (val) {
+            std::cout << i << " " << histogram[i] << " " << val << std::endl;
+        }
+        for (uint j = 0 ; j <= val ; ++j) {
+            (*hist_image)(HIST_H - j - 1, i) = std::make_tuple(0xFF, 0xFF, 0xFF);
+        }
+    }
+    return hist_image;
+    //return getRGBFromYUV(histogram);
+}
+void ImageProcessor::showObjects() {
+    for (uint i = 0 ; i < components ; ++i) {
+        drawRectangle(i);
+    }
+    std::cout << components << std::endl;
+}
+
+void ImageProcessor::drawRectangle(uint num) {
+    uint x1 = objects[num].topLeft.x;
+    uint x2 = objects[num].bottomRight.x;
+    uint y1 = objects[num].topLeft.y;
+    uint y2 = objects[num].bottomRight.y;
+    
+    for (uint x = x1 ; x <= x2 ; ++x) {
+        (*theImage)(x, y1) = std::make_tuple(0xFF, 0, 0);
+        (*theImage)(x, y2) = std::make_tuple(0xFF, 0, 0);
+    }
+    
+    for (uint y = y1 ; y <= y2 ; ++y) {
+        (*theImage)(x1, y) = std::make_tuple(0xFF, 0, 0);
+        (*theImage)(x2, y) = std::make_tuple(0xFF, 0, 0);
+    }
+}
+
+

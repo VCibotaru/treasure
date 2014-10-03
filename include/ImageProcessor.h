@@ -28,6 +28,8 @@ struct ImageObject {
     double medX, medY;
     double getMoment(std::shared_ptr<Matrix<uint>> image, uint i, uint j);
     double getElongation(std::shared_ptr<Matrix<uint>> image);
+    double getAngle(std::shared_ptr<Matrix<uint> > image);
+    uint getRedPixelsCount(std::shared_ptr<Image> image);
     uint getWidth() {
         return (bottomRight.x > topLeft.x) ? (bottomRight.x - topLeft.x) : 0;
     }
@@ -35,8 +37,6 @@ struct ImageObject {
         return (bottomRight.y > topLeft.y) ? (bottomRight.y - topLeft.y) : 0;
     }
     uint getArea() {
-        uint w = getWidth();
-        uint h = getHeight();
         return getWidth() * getHeight();
     }
 };
@@ -60,10 +60,13 @@ public:
     void drawRectangle(uint num);
     void showObjects();
     
+    uint getRedArrowIndex() const;
     uint getPixelIntensity(uint i, uint j) const;
     uint computeThreshold() const;
     
     
+    std::vector<ImageObject> getObjects() const;
+    ImageObject getTreasure();
     //debug methods
     std::shared_ptr<Image> getHistogram() const;
     std::shared_ptr<Image> getGrayscale() const;
