@@ -135,12 +135,15 @@ void ImageProcessor::binarize() {
     
 }
 
-//83x44
+//293 x 50
 void ImageProcessor::segment() {
     std::vector<uint> labels(1);
     for (uint i = 0 ; i < grayscaleImage->n_rows ; ++i) {
         for (uint j = 0 ; j < grayscaleImage->n_cols ; ++j) {
             if ( (*binImage)(i,j)) {
+                if (i == 50 && j > 288) {
+                    
+                }
                 uint up = (i > 0) ? (*labelImage)(i - 1, j) : 0;
                 uint left = (j > 0) ? (*labelImage)(i, j - 1) : 0;
                 if (!up && !left) {
@@ -165,7 +168,11 @@ void ImageProcessor::segment() {
     components = 0;
     for (uint i = 0 ; i < labelImage->n_rows ; ++i) {
         for (uint j = 0 ; j < labelImage->n_cols ; ++j) {
-            (*labelImage)(i,j) = labels[(*labelImage)(i,j)];
+            uint tmp = labels[(*labelImage)(i,j)];
+            while (labels[tmp] != tmp) {
+                tmp = labels[tmp];
+            }
+            (*labelImage)(i,j) = tmp;
             if ((*labelImage)(i,j) > components) {
                 components = (*labelImage)(i,j);
             }
@@ -206,9 +213,10 @@ void ImageProcessor::showObjects() {
     for (uint i = 0 ; i < components ; ++i) {
         double val = objects[i].getElongation(labelImage);
         if (val) {
-            std::cout << val << std::endl;
-            if (val < 3) drawRectangle(i);
+            //std::cout << val << std::endl;
+            //if (val < 3) drawRectangle(i);
         }
+        drawRectangle(i);
         
     }
 }
@@ -238,7 +246,6 @@ uint ImageProcessor::computeThreshold() const {
             maxIndex = i;
         }
     }
-    std::cout << "max = " << maxIndex << std::endl;
     for (uint i = 0 ; i <= maxIndex; ++i) {
         maxSum -= histogram[i];
     }
