@@ -28,6 +28,17 @@ struct ImageObject {
     double medX, medY;
     double getMoment(std::shared_ptr<Matrix<uint>> image, uint i, uint j);
     double getElongation(std::shared_ptr<Matrix<uint>> image);
+    uint getWidth() {
+        return (bottomRight.x > topLeft.x) ? (bottomRight.x - topLeft.x) : 0;
+    }
+    uint getHeight() {
+        return (bottomRight.y > topLeft.y) ? (bottomRight.y - topLeft.y) : 0;
+    }
+    uint getArea() {
+        uint w = getWidth();
+        uint h = getHeight();
+        return getWidth() * getHeight();
+    }
 };
 
 class ImageProcessor {

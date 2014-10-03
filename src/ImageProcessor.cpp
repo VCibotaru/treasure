@@ -148,7 +148,7 @@ void ImageProcessor::segment() {
                 uint left = (j > 0) ? (*labelImage)(i, j - 1) : 0;
                 if (!up && !left) {
                     //both are not labeled
-                    labels.push_back(labels.size());
+                    labels.push_back(uint(labels.size()));
                     (*labelImage)(i,j) = labels.back();
                     continue;
                 }
@@ -181,32 +181,37 @@ void ImageProcessor::segment() {
 }
 
 void ImageProcessor::parseObjects() {
-    objects.resize(components);
-    
+    std::vector<ImageObject> tmp(components);
     for (uint i = 0 ; i < components ; ++i) {
-        objects[i].topLeft.x = objects[i].topLeft.y = std::max(theImage->n_cols, theImage->n_rows) + 1;
-        objects[i].medsAssigned = false;
-        objects[i].num = i + 1;
+        tmp[i].topLeft.x = tmp[i].topLeft.y = std::max(theImage->n_cols, theImage->n_rows) + 1;
+        tmp[i].medsAssigned = false;
+        tmp[i].num = i + 1;
     }
     for (uint i = 0 ; i < labelImage->n_rows ; ++i) {
         for (uint j = 0 ; j < labelImage->n_cols ; ++j) {
             if ((*labelImage)(i, j)) {
                 uint component = (*labelImage)(i,j) - 1;
-                if (i < objects[component].topLeft.x) {
-                    objects[component].topLeft.x = i;
+                if (i < tmp[component].topLeft.x) {
+                    tmp[component].topLeft.x = i;
                 }
-                if (j < objects[component].topLeft.y) {
-                    objects[component].topLeft.y = j;
+                if (j < tmp[component].topLeft.y) {
+                    tmp[component].topLeft.y = j;
                 }
-                if (i > objects[component].bottomRight.x) {
-                    objects[component].bottomRight.x = i;
+                if (i > tmp[component].bottomRight.x) {
+                    tmp[component].bottomRight.x = i;
                 }
-                if (j > objects[component].bottomRight.y) {
-                    objects[component].bottomRight.y = j;
+                if (j > tmp[component].bottomRight.y) {
+                    tmp[component].bottomRight.y = j;
                 }
             }
         }
     }
+    for (uint i = 0 ; i < components ; ++i) {
+        if (tmp[i].getArea() > 10) {
+            objects.push_back(tmp[i]);
+        }
+    }
+    components = uint(objects.size());
 }
 
 void ImageProcessor::showObjects() {
