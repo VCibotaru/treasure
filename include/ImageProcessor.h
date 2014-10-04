@@ -26,10 +26,11 @@ struct ImageObject {
     bool medsAssigned;
     uint num;
     double medX, medY;
+    double greenMedX, greenMedY;
     double getMoment(std::shared_ptr<Matrix<uint>> image, uint i, uint j);
     double getElongation(std::shared_ptr<Matrix<uint>> image);
     double getAngle(std::shared_ptr<Matrix<uint> > image);
-    void getMeds(std::shared_ptr<Matrix<uint> > image);
+    void getMeds(std::shared_ptr<Matrix<uint> > image, std::shared_ptr<Image> rgbImage);
     uint getRedPixelsCount(std::shared_ptr<Image> image);
     uint getWidth() {
         return (bottomRight.x > topLeft.x) ? (bottomRight.x - topLeft.x) : 0;

@@ -32,11 +32,11 @@ double ImageObject::getMoment(std::shared_ptr<Matrix<uint>> image, uint i, uint 
     return moment;
 }
 
-void ImageObject::getMeds(std::shared_ptr<Matrix<uint> > image) {
+void ImageObject::getMeds(std::shared_ptr<Matrix<uint> > image, std::shared_ptr<Image> rgbImage) {
     if (!medsAssigned) {
-        uint count = 0;
-        medX = 0;
-        medY = 0;
+        uint count = 0, medRed = 0;
+        medX = medY = 0;
+        greenMedX = greenMedY = 0;
         medsAssigned = true;
         for (uint x = topLeft.x ; x <= bottomRight.x ; ++x) {
             for (uint y = topLeft.y ; y <= bottomRight.y ; ++y) {
@@ -45,17 +45,33 @@ void ImageObject::getMeds(std::shared_ptr<Matrix<uint> > image) {
                     count++;
                     medX += x;
                     medY += y;
+                    medRed += std::get<0>((*rgbImage)(x, y));
                 }
             }
         }
         if (!count) return;
         medX /= count;
         medY /= count;
+        medRed /= count;
+        count = 0;
+        for (uint x = topLeft.x ; x <= bottomRight.x ; ++x) {
+            for (uint y = topLeft.y ; y <= bottomRight.y ; ++y) {
+                if ((*image)(x, y) == num) {
+                    uint red = std::get<0>((*rgbImage)(x, y));
+                    if (red < medRed - 40) {
+                        greenMedX += x;
+                        greenMedY += y;
+                        count++;
+                    }
+                }
+            }
+        }
+        greenMedX /= count;
+        greenMedY /= count;
     }
 
 }
 double ImageObject::getElongation(std::shared_ptr<Matrix<uint>> image) {
-    getMeds(image);
     double m20 = getMoment(image, 2, 0);
     double m02 = getMoment(image, 0, 2);
     double m11 = getMoment(image, 1, 1);
@@ -64,7 +80,6 @@ double ImageObject::getElongation(std::shared_ptr<Matrix<uint>> image) {
 }
 
 double ImageObject::getAngle(std::shared_ptr<Matrix<uint> > image) {
-    getMeds(image);
     double m11 = getMoment(image, 1, 1);
     double m02 = getMoment(image, 0, 2);
     double m20 = getMoment(image, 2, 0);
@@ -137,7 +152,7 @@ ImageObject ImageProcessor::getTreasure() {
 }
 
 void ImageProcessor::drawLine(uint num) {
-    double theta = objects[num].getAngle(labelImage);
+    double theta = -objects[num].getAngle(labelImage);
     double medY = objects[num].medX;
     double medX = objects[num].medY;
     for (uint x = 0 ; x < theImage->n_cols ; ++x) {
@@ -239,6 +254,9 @@ void ImageProcessor::parseObjects() {
             objects.push_back(tmp[i]);
         }
     }
+    for (uint i = 0 ; i < objects.size() ; ++i) {
+        objects[i].getMeds(labelImage, theImage);
+    }
     components = uint(objects.size());
 }
 
@@ -303,6 +321,9 @@ void ImageProcessor::showObjects() {
     for (uint i = 0 ; i < components ; ++i) {
         drawRectangle(i);
         drawLine(i);
+        //std::cout << objects[i].getMoment(labelImage, 1, 1) << " " << objects[i].getMoment(labelImage, 0, 2) << " " << objects[i].getMoment(labelImage, 2, 0) << std::endl;
+        //std::cout << objects[i].getAngle(labelImage) << std::endl;
+        std::cout << objects[i].greenMedX << " " << objects[i].greenMedY << std::endl;
     }
 }
 
