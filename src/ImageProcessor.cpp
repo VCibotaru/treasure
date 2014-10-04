@@ -32,7 +32,7 @@ double ImageObject::getMoment(std::shared_ptr<Matrix<uint>> image, uint i, uint 
     return moment;
 }
 
-double ImageObject::getElongation(std::shared_ptr<Matrix<uint>> image) {
+void ImageObject::getMeds(std::shared_ptr<Matrix<uint> > image) {
     if (!medsAssigned) {
         uint count = 0;
         medX = 0;
@@ -48,11 +48,14 @@ double ImageObject::getElongation(std::shared_ptr<Matrix<uint>> image) {
                 }
             }
         }
-        if (!count) return 0;
+        if (!count) return;
         medX /= count;
         medY /= count;
     }
-    
+
+}
+double ImageObject::getElongation(std::shared_ptr<Matrix<uint>> image) {
+    getMeds(image);
     double m20 = getMoment(image, 2, 0);
     double m02 = getMoment(image, 0, 2);
     double m11 = getMoment(image, 1, 1);
@@ -61,6 +64,7 @@ double ImageObject::getElongation(std::shared_ptr<Matrix<uint>> image) {
 }
 
 double ImageObject::getAngle(std::shared_ptr<Matrix<uint> > image) {
+    getMeds(image);
     double m11 = getMoment(image, 1, 1);
     double m02 = getMoment(image, 0, 2);
     double m20 = getMoment(image, 2, 0);
@@ -68,12 +72,10 @@ double ImageObject::getAngle(std::shared_ptr<Matrix<uint> > image) {
 }
 
 uint ImageObject::getRedPixelsCount(std::shared_ptr<Image> image) {
-    uint count = 0;
+    uint count = 0, r, g, b;
     for (uint x = topLeft.x ; x <= bottomRight.x ; ++x) {
         for (uint y = topLeft.y ; y <= bottomRight.y ; ++y) {
-            uint r = std::get<0>((*image)(x, y));
-            uint g = std::get<1>((*image)(x, y));
-            uint b = std::get<2>((*image)(x, y));
+            std::tie(r, g , b) = (*image)(x, y);
             if (r > g + b) {
                 count++;
             }
@@ -114,13 +116,15 @@ std::vector<ImageObject> ImageProcessor::getObjects() const {
 }
 
 uint ImageProcessor::getRedArrowIndex() {
-    uint max = 0, red;
+    uint max = 0, red = 0;
     for (uint i = 0 ; i < objects.size() ; ++i) {
-        if (objects[i].ImageObject::getRedPixelsCount(theImage) > max) {
-            max =
+        uint tmp = objects[i].getRedPixelsCount(theImage);
+        if (tmp > max && objects[i].getElongation(labelImage) > 3) {
+            max = tmp;
+            red = i;
         }
     }
-    
+    return red;
 }
 ImageObject ImageProcessor::getTreasure() {
     for (uint i = 0 ; i < objects.size() ; ++i) {
@@ -132,8 +136,20 @@ ImageObject ImageProcessor::getTreasure() {
     return objects[0];
 }
 
+void ImageProcessor::drawLine(uint num) {
+    double theta = objects[num].getAngle(labelImage);
+    double medY = objects[num].medX;
+    double medX = objects[num].medY;
+    for (uint x = 0 ; x < theImage->n_cols ; ++x) {
+        int y = int((medX - x) * std::tan(theta) + medY);
+        if (y >= 0 && y < theImage->n_rows) {
+            (*theImage)(y, x) = std::make_tuple(0, 0, 0xFF);
+        }
+        
+    }
+}
 
-//let`s try the the gradient variant
+
 void ImageProcessor::binarize() {
     std::shared_ptr<Matrix<uint>> gr = grayscaleImage;
     binImage = std::make_shared<Matrix<uint>>(gr->n_rows, gr->n_cols);
@@ -250,9 +266,8 @@ uint ImageProcessor::computeThreshold() const {
 }
 
 uint ImageProcessor::getPixelIntensity(uint i, uint j) const {
-    uint g = std::get<1>((*theImage)(i,j));
-    uint b = std::get<2>((*theImage)(i,j));
-    uint r = std::get<0>((*theImage)(i,j));
+    uint r, g, b;
+    std::tie(r, g , b) = (*theImage)(i, j);
     return uint(r*R + g*G + b*B);
 }
 
@@ -287,15 +302,15 @@ std::shared_ptr<Image> ImageProcessor::getHistogram() const {
 void ImageProcessor::showObjects() {
     for (uint i = 0 ; i < components ; ++i) {
         drawRectangle(i);
+        drawLine(i);
     }
-    std::cout << components << std::endl;
 }
 
 void ImageProcessor::drawRectangle(uint num) {
     uint x1 = objects[num].topLeft.x;
-    uint x2 = objects[num].bottomRight.x;
+    uint x2 = std::min(theImage->n_rows, objects[num].bottomRight.x);
     uint y1 = objects[num].topLeft.y;
-    uint y2 = objects[num].bottomRight.y;
+    uint y2 = std::min(theImage->n_cols, objects[num].bottomRight.y);
     
     for (uint x = x1 ; x <= x2 ; ++x) {
         (*theImage)(x, y1) = std::make_tuple(0xFF, 0, 0);

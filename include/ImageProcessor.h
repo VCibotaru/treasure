@@ -29,6 +29,7 @@ struct ImageObject {
     double getMoment(std::shared_ptr<Matrix<uint>> image, uint i, uint j);
     double getElongation(std::shared_ptr<Matrix<uint>> image);
     double getAngle(std::shared_ptr<Matrix<uint> > image);
+    void getMeds(std::shared_ptr<Matrix<uint> > image);
     uint getRedPixelsCount(std::shared_ptr<Image> image);
     uint getWidth() {
         return (bottomRight.x > topLeft.x) ? (bottomRight.x - topLeft.x) : 0;
@@ -59,8 +60,9 @@ public:
     void parseObjects();
     void drawRectangle(uint num);
     void showObjects();
+    void drawLine(uint num);
     
-    uint getRedArrowIndex() const;
+    uint getRedArrowIndex();
     uint getPixelIntensity(uint i, uint j) const;
     uint computeThreshold() const;
     
