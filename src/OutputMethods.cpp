@@ -50,9 +50,6 @@ void ImageProcessor::showObjects() {
     for (uint i = 0 ; i < components ; ++i) {
         drawRectangle(i);
         drawLine(i);
-        //std::cout << objects[i].getMoment(labelImage, 1, 1) << " " << objects[i].getMoment(labelImage, 0, 2) << " " << objects[i].getMoment(labelImage, 2, 0) << std::endl;
-        //std::cout << objects[i].getAngle(labelImage) << std::endl;
-        std::cout << objects[i].greenMedX << " " << objects[i].greenMedY << std::endl;
     }
 }
 
@@ -76,3 +73,20 @@ void ImageProcessor::drawRectangle(uint num) {
 std::vector<ImageObject> ImageProcessor::getObjects() const {
     return objects;
 }
+
+void ImageProcessor::drawLine(uint num) {
+    for (uint x = 0 ; x < theImage->n_cols ; ++x) {
+        int y = 0;
+        Line l = objects[num].getLineEq();
+        if (l.isVertical) {
+            y = objects[num].medY;
+        }
+        else {
+            y = x * l.k + l.b;
+        }
+        if (y >= 0 && y < int(theImage->n_rows)) {
+            (*theImage)(y, x) = std::make_tuple(0, 0, 0xFF);
+        }
+    }
+}
+

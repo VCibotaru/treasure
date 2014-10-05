@@ -24,6 +24,12 @@ struct Point {
     Point(uint _x = 0, uint _y = 0) : x(_x), y(_y) {};
 };
 
+struct Line {
+    bool isVertical;
+    double k, b;
+    Line(double _k = 0, double _b = 0, bool _vert = false) : k(_k), b(_b), isVertical(_vert) {};
+};
+
 struct ImageObject {
     Point topLeft, bottomRight;
     bool medsAssigned;
@@ -44,6 +50,7 @@ struct ImageObject {
     uint getArea() {
         return getWidth() * getHeight();
     }
+    Line getLineEq();
 };
 
 class ImageProcessor {
@@ -78,6 +85,7 @@ public:
     std::shared_ptr<Image> getGrayscale() const;
     std::shared_ptr<Image> getBin() const;
     std::shared_ptr<Matrix<uint>> getLabeled() const;
+    std::vector<ImageObject> getPath();
     
     
 //TODO: delete funcs below

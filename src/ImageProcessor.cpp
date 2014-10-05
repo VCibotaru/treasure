@@ -16,10 +16,48 @@
 #define THRESH_RATIO 0.2
 #define THRESH 30
 
+bool intersects(Line l, Point lu, Point rb) {
+    /*double k = l.k, b = l.b;
+    uint x1 = lu.x, y1 = lu.y, x2 = rb.x, y2 = rb.y;
+    if (l.isVertical) {
+        uint x = k;
+        return (x > x1 && x < x2);
+    }
+    if (!k) {
+        return (y1 > b && b < y2);
+    }
+    double tmpX1 = (b - y1) / k, tmpX2 = (b - y2) / k;
+    if (tmpX1 > x1 && tmpX1 < x2) {
+        return true;
+    }
+    if (tmpX2 > x1 && tmpX2 < x2) {
+        return true;
+    }
+    double tmpY1 = k * x1 + b, tmpY2 = k * x2 + b;
+    if (tmpY1 > y1 && tmpY1 < y2) {
+        return true;
+    }
+    if (tmpY2 > y1 && tmpY2 < y2) {
+        return true;
+    }*/
+    std::cout << 1;
+    for (uint x = lu.y ; x <= rb.y ; ++x) {
+        int y = 0;
+        if (l.isVertical) {
+            y = l.k;
+        }
+        else {
+            y = x * l.k + l.b;
+        }
+        if (y >= lu.x && y <= rb.x) {
+            return true;
+        }
+    }
+    return false;
+}
 
 
 
-#pragma line ImageObject methods
 double ImageObject::getMoment(std::shared_ptr<Matrix<uint>> image, uint i, uint j) {
     double moment = 0;
     for (uint x = topLeft.x ; x <= bottomRight.x ; ++x) {
@@ -34,7 +72,7 @@ double ImageObject::getMoment(std::shared_ptr<Matrix<uint>> image, uint i, uint 
 
 void ImageObject::getMeds(std::shared_ptr<Matrix<uint> > image, std::shared_ptr<Image> rgbImage) {
     if (!medsAssigned) {
-        uint count = 0, medRed = 0;
+        uint count = 0, greenCount = 0;
         medX = medY = 0;
         greenMedX = greenMedY = 0;
         medsAssigned = true;
@@ -45,29 +83,22 @@ void ImageObject::getMeds(std::shared_ptr<Matrix<uint> > image, std::shared_ptr<
                     count++;
                     medX += x;
                     medY += y;
-                    medRed += std::get<0>((*rgbImage)(x, y));
+                    uint r, g, b;
+                    std::tie(r,g,b) = (*rgbImage)(x, y);
+                    if (!(r > g + b) && !(r + g + b > 600)) {
+                        //if the pixel is not red && is not white => is green or yellow
+                        greenMedX += x;
+                        greenMedY += y;
+                        greenCount++;
+                    }
                 }
             }
         }
         if (!count) return;
         medX /= count;
         medY /= count;
-        medRed /= count;
-        count = 0;
-        for (uint x = topLeft.x ; x <= bottomRight.x ; ++x) {
-            for (uint y = topLeft.y ; y <= bottomRight.y ; ++y) {
-                if ((*image)(x, y) == num) {
-                    uint red = std::get<0>((*rgbImage)(x, y));
-                    if (red < medRed - 40) {
-                        greenMedX += x;
-                        greenMedY += y;
-                        count++;
-                    }
-                }
-            }
-        }
-        greenMedX /= count;
-        greenMedY /= count;
+        greenMedX /= greenCount;
+        greenMedY /= greenCount;
     }
 
 }
@@ -136,20 +167,6 @@ ImageObject ImageProcessor::getTreasure() {
     }
     return objects[0];
 }
-
-void ImageProcessor::drawLine(uint num) {
-    double theta = -objects[num].getAngle(labelImage);
-    double medY = objects[num].medX;
-    double medX = objects[num].medY;
-    for (uint x = 0 ; x < theImage->n_cols ; ++x) {
-        int y = int((medX - x) * std::tan(theta) + medY);
-        if (y >= 0 && y < theImage->n_rows) {
-            (*theImage)(y, x) = std::make_tuple(0, 0, 0xFF);
-        }
-        
-    }
-}
-
 
 void ImageProcessor::binarize() {
     std::shared_ptr<Matrix<uint>> gr = grayscaleImage;
@@ -246,6 +263,43 @@ void ImageProcessor::parseObjects() {
     components = uint(objects.size());
 }
 
+std::vector<ImageObject> ImageProcessor::getPath() {
+    std::vector<bool> checked(components);
+    std::vector<ImageObject> path;
+    uint cur = 6;
+    drawLine(cur);
+    /*while (objects[cur].getElongation(labelImage) > 3) {
+        checked[cur] = true;
+        Line l = objects[cur].getLineEq();
+        for (uint i = 0 ; i < components ; ++i) {
+            if (!checked[i]) {
+                
+            }
+        }
+    }*/
+    Line l = objects[cur].getLineEq();
+    for (uint i = 0 ; i < components ; ++i) {
+        if (intersects(l, objects[i].topLeft, objects[i].bottomRight)) {
+            drawRectangle(i);
+        }
+    }
+    return path;
+}
+
+Line ImageObject::getLineEq() {
+    double mY = medX;
+    double mX = medY;
+    double gmY = greenMedX;
+    double gmX = greenMedY;
+    if (gmX == mX) {
+        return Line(medX);
+    }
+    double k = (gmY - mY) / (gmX - mX);
+    double b = mY - k *mX;
+    return Line(k, b);
+
+    
+}
 uint ImageProcessor::computeThreshold() const {
     uint maxVal = histogram[0], maxIndex = 0, curSum = 0, sum = theImage->n_cols * theImage->n_rows, maxSum = sum;
     for (uint i = 1 ; i < 256 ; ++i) {
@@ -275,8 +329,6 @@ uint ImageProcessor::getPixelIntensity(uint i, uint j) const {
 }
 
 
-#pragma debug
-//debug methods, including output
 
 
 
