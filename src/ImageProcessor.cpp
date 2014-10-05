@@ -17,30 +17,6 @@
 #define THRESH 30
 
 bool intersects(Line l, Point lu, Point rb) {
-    /*double k = l.k, b = l.b;
-    uint x1 = lu.x, y1 = lu.y, x2 = rb.x, y2 = rb.y;
-    if (l.isVertical) {
-        uint x = k;
-        return (x > x1 && x < x2);
-    }
-    if (!k) {
-        return (y1 > b && b < y2);
-    }
-    double tmpX1 = (b - y1) / k, tmpX2 = (b - y2) / k;
-    if (tmpX1 > x1 && tmpX1 < x2) {
-        return true;
-    }
-    if (tmpX2 > x1 && tmpX2 < x2) {
-        return true;
-    }
-    double tmpY1 = k * x1 + b, tmpY2 = k * x2 + b;
-    if (tmpY1 > y1 && tmpY1 < y2) {
-        return true;
-    }
-    if (tmpY2 > y1 && tmpY2 < y2) {
-        return true;
-    }*/
-    std::cout << 1;
     for (uint x = lu.y ; x <= rb.y ; ++x) {
         int y = 0;
         if (l.isVertical) {
@@ -49,7 +25,7 @@ bool intersects(Line l, Point lu, Point rb) {
         else {
             y = x * l.k + l.b;
         }
-        if (y >= lu.x && y <= rb.x) {
+        if (y >= int(lu.x) && y <= int(rb.x)) {
             return true;
         }
     }
@@ -266,23 +242,31 @@ void ImageProcessor::parseObjects() {
 std::vector<ImageObject> ImageProcessor::getPath() {
     std::vector<bool> checked(components);
     std::vector<ImageObject> path;
-    uint cur = 6;
-    drawLine(cur);
-    /*while (objects[cur].getElongation(labelImage) > 3) {
+    uint cur = getRedArrowIndex();
+    path.push_back(objects[cur]);
+    double minDist = 10000000, dist;
+    uint best = 0;
+    while (objects[cur].getElongation(labelImage) > 3) {
         checked[cur] = true;
+        minDist = 10000000;
+        best = cur;
         Line l = objects[cur].getLineEq();
         for (uint i = 0 ; i < components ; ++i) {
-            if (!checked[i]) {
-                
+            if (!checked[i] && intersects(l, objects[i].topLeft, objects[i].bottomRight)) {
+                dist = std::pow(std::pow(objects[i].medX - objects[cur].medX, 2) + std::pow(objects[i].medY - objects[cur].medY, 2), 0.5);
+                if (dist < minDist) {
+                    minDist = dist;
+                    best = i;
+                }
             }
         }
-    }*/
-    Line l = objects[cur].getLineEq();
-    for (uint i = 0 ; i < components ; ++i) {
-        if (intersects(l, objects[i].topLeft, objects[i].bottomRight)) {
-            drawRectangle(i);
+        if (cur == best) {
+            return path;
         }
+        path.push_back(objects[best]);
+        cur = best;
     }
+    drawRectangle(cur);
     return path;
 }
 
@@ -291,7 +275,7 @@ Line ImageObject::getLineEq() {
     double mX = medY;
     double gmY = greenMedX;
     double gmX = greenMedY;
-    if (gmX == mX) {
+    if (gmX <= mX + 0.1 && gmX >= mX - 0.1) {
         return Line(medX);
     }
     double k = (gmY - mY) / (gmX - mX);
@@ -308,7 +292,7 @@ uint ImageProcessor::computeThreshold() const {
             maxIndex = i;
         }
     }
-    for (uint i = 0 ; i <= maxIndex; ++i) {
+    for (uint i = 0 ; i <= maxIndex; ++i) { 
         maxSum -= histogram[i];
     }
     curSum = maxSum;

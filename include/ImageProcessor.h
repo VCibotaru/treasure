@@ -25,8 +25,8 @@ struct Point {
 };
 
 struct Line {
-    bool isVertical;
     double k, b;
+    bool isVertical;
     Line(double _k = 0, double _b = 0, bool _vert = false) : k(_k), b(_b), isVertical(_vert) {};
 };
 
