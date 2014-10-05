@@ -14,6 +14,9 @@
 #include <vector>
 #include "io.h"
 
+
+#define HIST_W 256
+
 typedef unsigned int uint;
 
 struct Point {
