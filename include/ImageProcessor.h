@@ -72,6 +72,7 @@ public:
     void drawRectangle(uint num);
     void showObjects();
     void drawLine(uint num);
+    void drawLineBetweenObjects(uint first, uint second);
     
     uint getRedArrowIndex();
     uint getPixelIntensity(uint i, uint j) const;

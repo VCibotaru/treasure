@@ -261,9 +261,10 @@ std::vector<ImageObject> ImageProcessor::getPath() {
             }
         }
         if (cur == best) {
-            return path;
+            break;
         }
         path.push_back(objects[best]);
+        drawLineBetweenObjects(cur, best);
         cur = best;
     }
     drawRectangle(cur);
@@ -292,7 +293,7 @@ uint ImageProcessor::computeThreshold() const {
             maxIndex = i;
         }
     }
-    for (uint i = 0 ; i <= maxIndex; ++i) { 
+    for (uint i = 0 ; i <= maxIndex; ++i) {
         maxSum -= histogram[i];
     }
     curSum = maxSum;

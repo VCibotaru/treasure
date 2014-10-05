@@ -90,3 +90,22 @@ void ImageProcessor::drawLine(uint num) {
     }
 }
 
+void ImageProcessor::drawLineBetweenObjects(uint first, uint second) {
+    double y1 = objects[first].medX, x1 = objects[first].medY;
+    double y2 = objects[second].medX, x2 = objects[second].medY;
+    if (x1 <= x2 + 0.1 && x1 >= x2 - 0.1) {
+        for (uint y = std::min(y1, y2) ; y <= std::max(y1, y2) ; ++y) {
+            (*theImage)(y, x1) = std::make_tuple(0, 0, 0xFF);
+        }
+        return;
+    }
+    double k = (y1 - y2) / (x1 - x2);
+    double b = y2 - k *x2;
+    for (uint x = std::min(x1, x2) ; x <= std::max(x1, x2) ; ++x) {
+        int y = x * k + b;
+        if (y >= 0 && y < int(theImage->n_rows)) {
+            (*theImage)(y, x) = std::make_tuple(0, 0, 0xFF);
+        }
+    }
+}
+
